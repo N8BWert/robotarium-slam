@@ -81,6 +81,22 @@ class Grapher:
             )
             self.est_trajectory_lines[robot_id] = line
 
+        # Dead Reckoning Trajectories (dash dot)
+        self.dead_reckoning_lines: dict[int, Line2D] = {}
+        for idx, robot_id in enumerate(self.seeking_ids):
+            color = ROBOT_COLORS[idx % len(ROBOT_COLORS)]
+            (line,) = self.axes.plot(
+                [],
+                [],
+                linestyle="-.",
+                linewidth=1.7,
+                color="#17becf",
+                alpha=0.65,
+                zorder=2,
+                label=f"Robot {robot_id} (dead-reckoning)"
+            )
+            self.dead_reckoning_lines[robot_id] = line
+
         # Current-pose markers (traingles rotated to show heading)
         self.est_pose_markers: dict[int, Line2D] = {}
         for idx, robot_id in enumerate(self.seeking_ids):
@@ -97,6 +113,24 @@ class Grapher:
                 zorder=4
             )
             self.est_pose_markers[robot_id] = marker
+
+        # Current-deadreckoning pose markers (triangles rotated to show headings)
+        self.deadreckoning_pose_markers: dict[int, Line2D] = {}
+        for idx, robot_id in enumerate(self.seeking_ids):
+            color = ROBOT_COLORS[idx % len(ROBOT_COLORS)]
+            (marker,) = self.axes.plot(
+                [],
+                [],
+                marker=(3, 0, 0),
+                markersize=15,
+                markerfacecolor=color,
+                markeredgecolor="black",
+                markeredgewidth=0.9,
+                alpha=0.65,
+                linestyle="",
+                zorder=4
+            )
+            self.deadreckoning_pose_markers[robot_id] = marker
         
         # Estimated landmarks (orange circles, gro dynamically as promoted)
         self.est_landmark_patches = []
@@ -172,6 +206,39 @@ class Grapher:
 
         self._build_legend()
 
+    def show_dead_reckoning(
+        self,
+        estimates: gtsam.Values,
+        timestamp: int
+    ):
+        """
+        Show the dead reckoning poses of the robots in the experiments
+
+        Args:
+            deadreckoning_trajectories: A list of the dead-reckoning trajectories of the robots in the experiment 
+        """
+        for robot_id in self.seeking_ids:
+            xs, ys = [], []
+            for t in range(timestamp + 1):
+                key = get_robot_key(robot_id, t)
+                if not estimates.exists(key):
+                    continue
+                pose = estimates.atPose2(key)
+                xs.append(pose.x())
+                ys.append(pose.y())
+
+            if not xs:
+                continue
+
+            self.dead_reckoning_lines[robot_id].set_data(xs, ys)
+            latest_key = get_robot_key(robot_id, timestamp)
+            if estimates.exists(latest_key):
+                pose = estimates.atPose2(latest_key)
+                heading_deg = np.degrees(pose.theta()) - 90
+                marker = self.deadreckoning_pose_markers[robot_id]
+                marker.set_marker((3, 0, heading_deg))
+                marker.set_data([pose.x()], [pose.y()])
+
     def show_estimates(self, estimates: gtsam.Values, timestamp: int):
         """
         Show the estimated poses of the robots and landmarks in the experiment
@@ -180,7 +247,7 @@ class Grapher:
             estimates: The gtsam.Values object containing the estimated poses of the robots and landmarks
             timestamp: The timestamp of the estimates to show
         """
-        # TODO: Draw the robot estimate trajectories for the seeking robots
+        # Draw the robot estimate trajectories for the seeking robots
         for robot_id in self.seeking_ids:
             xs, ys = [], []
             for t in range(timestamp + 1):

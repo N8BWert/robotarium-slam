@@ -12,8 +12,8 @@ def generate_initial_conditions(N: int) -> np.ndarray:
     accepted = [np.array([0.0, 0.0])]
     while len(accepted) < N:
         candidate = np.array([
-            (np.random.rand() - 0.5) * 3.0,
-            (np.random.rand() - 0.5) * 1.8
+            (np.random.rand() - 0.5) * 2.7,
+            (np.random.rand() - 0.5) * 1.5
         ])
 
         if np.all(np.linalg.norm(np.array(accepted) - candidate, axis=1) >= 0.5):

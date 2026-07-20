@@ -245,6 +245,7 @@ class WaypointingBehavior(SLAMBehavior):
         self.waypoint_assignments = random.sample(self.waypoint_idxs, len(self.seeking_ids))
         self.counter = 0
         self.waypointing_length = waypointing_length
+        self.close = False
 
     def apply(
         self,
@@ -260,6 +261,8 @@ class WaypointingBehavior(SLAMBehavior):
         """
         self.counter += 1
         desired_poses = self.waypoints[self.waypoint_assignments]
+        if np.linalg.norm(estimates - desired_poses) < 0.05:
+            self.close = True
         return self.controller(estimates, np.array(desired_poses).T)
 
     def done(self) -> bool:
@@ -269,13 +272,14 @@ class WaypointingBehavior(SLAMBehavior):
         Returns:
             True if the behavior is done, False otherwise
         """
-        return self.counter >= self.waypointing_length
+        return self.counter >= self.waypointing_length or self.close
     
     def reset(self):
         """
         Reset the behavior to its initial state
         """
         self.counter = 0
+        self.close = False
         self.waypoint_assignments = random.sample(self.waypoint_idxs, len(self.seeking_ids))
     
     @staticmethod
@@ -290,13 +294,13 @@ class WaypointingBehavior(SLAMBehavior):
             A list of waypoints for the robots to drive to
         """
         x_waypoints = np.linspace(
-            Robotarium.BOUNDARIES[0] + 0.2,
-            Robotarium.BOUNDARIES[1] - 0.2,
+            Robotarium.BOUNDARIES[0] + 0.4,
+            Robotarium.BOUNDARIES[1] - 0.4,
             x_columns,
         )
         y_waypoints = np.linspace(
-            Robotarium.BOUNDARIES[2] + 0.2,
-            Robotarium.BOUNDARIES[3] - 0.2,
+            Robotarium.BOUNDARIES[2] + 0.4,
+            Robotarium.BOUNDARIES[3] - 0.4,
             y_columns
         )
         xv, yv = np.meshgrid(x_waypoints, y_waypoints)
@@ -360,19 +364,23 @@ class SLAMDemoController:
 
     def __init__(
         self,
-        seeking_ids: list = [0, 1, 2], x_columns: int = 4, y_columns: int = 3):
+        velocity_magnitude_limit: float = 0.15,
+        seeking_ids: list = [0, 1, 2],
+        x_columns: int = 4,
+        y_columns: int = 3
+    ):
         # The barrier certificate to use for preventing crashes
         self.barrier_certificate = SLAMDemoBarrierCertificate(
             barrier_gain=1.0,
             safety_radius=0.15,
             projection_distance=0.05,
-            velocity_magnitude_limit=0.15
+            velocity_magnitude_limit=velocity_magnitude_limit
         )
         # The unicycle position controller to use to drive the robot
         self.controller = create_uni_position_controller(
             x_velocity_gain=0.8,
             y_velocity_gain=0.8,
-            velocity_magnitude_limit=0.15,
+            velocity_magnitude_limit=velocity_magnitude_limit,
             projection_distance=0.05
         )
         self.waypointing_behavior = WaypointingBehavior(

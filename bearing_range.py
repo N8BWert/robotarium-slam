@@ -14,11 +14,11 @@ from utilities import get_robot_key
 # The maximum distance between a distance sensor reading and a robot to be considered valid for inter-robot association
 ROBOT_ASSOCIATION_TOLERANCE = 0.15
 # The maximum distance between a distance sensor reading and a landmark to be considered valid
-LANDMARK_ASSOCIATION_TOLERANCE = 0.08
+LANDMARK_ASSOCIATION_TOLERANCE = 0.225
 # The standard deviation for the bearing part of the bearing range factor
-BEARING_NOISE_STD = 0.5
+BEARING_NOISE_STD = 0.85
 # The standard deviation for the range part of the bearing range factor
-DISTANCE_NOISE_STD = 0.5
+DISTANCE_NOISE_STD = 0.85
 # The noise model for the bearing range factors.
 BASE_NOISE_MODEL = gtsam.noiseModel.Diagonal.Sigmas(np.array([BEARING_NOISE_STD, DISTANCE_NOISE_STD]))
 # The huber threshold for the huber noise model
@@ -92,10 +92,10 @@ class LandmarkCandidate:
 
     # The number of times the landmark candidate has to be observed before it is added to the
     # graph
-    MIN_HITS: int = 5
+    MIN_HITS: int = 12
     # The window of timestamps between which a landmark candidate has to be observed before
     # it is deemed to be invalid
-    MAX_OBSERVATION_WINDOW: int = 10
+    MAX_OBSERVATION_WINDOW: int = 15
 
     def __init__(self, observation_location: np.ndarray, timestamp: int):
         self.observation_locations = [observation_location]
@@ -341,7 +341,7 @@ class BearingRangeDetector:
                                     new_key,
                                     gtsam.Rot2(measurement[0]),
                                     measurement[1],
-                                    HUBER_NOISE_MODEL
+                                    BASE_NOISE_MODEL
                                 ))
                                 self.landmark_candidates.remove(candidate)
                                 landmark_key += 1

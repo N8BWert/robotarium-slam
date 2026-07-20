@@ -8,8 +8,17 @@ from rps.robotarium import Robotarium
 
 from utilities import get_robot_key
 
+# The wheel radius in meters
+WHEEL_RADIUS: float = 0.016
+# The number of encoder counts per revolution
+ENCODER_COUNTS_PER_REVOLUTION: float = 28.0
+# The gear ratio
+MOTOR_GEAR_RATIO: float = 100.0
+# The base length
+BASE_LENGTH: float = 0.1045
+
 # The noise model for encoder odometry factors.
-ENCODER_NOISE_MODEL = gtsam.noiseModel.Diagonal.Sigmas(np.array([Robotarium.ENCODER_NOISE_STD, Robotarium.ENCODER_NOISE_STD, Robotarium.ENCODER_NOISE_STD]))
+ENCODER_NOISE_MODEL = gtsam.noiseModel.Diagonal.Sigmas(np.array([0.05, 0.05, 0.05]))
 
 
 def ticks_to_distance(ticks: np.ndarray) -> np.ndarray:
@@ -21,7 +30,7 @@ def ticks_to_distance(ticks: np.ndarray) -> np.ndarray:
     Returns:
         The distance traveled by the robot (N,)
     """
-    return ticks * 2 * np.pi * Robotarium.WHEEL_RADIUS / (Robotarium.ENCODER_COUNTS_PER_REVOLUTION * Robotarium.MOTOR_GEAR_RATIO)
+    return ticks * 2 * np.pi * WHEEL_RADIUS / (ENCODER_COUNTS_PER_REVOLUTION * MOTOR_GEAR_RATIO)
 
 def calculate_odometry_from_encoders(
     previous_encoder_values: np.ndarray,
@@ -39,7 +48,7 @@ def calculate_odometry_from_encoders(
     delta_encoders = current_encoder_values - previous_encoder_values
     delta_arc = ticks_to_distance(delta_encoders)
     delta_s = (delta_arc[0, :] + delta_arc[1, :]) / 2.0
-    delta_theta = (delta_arc[1, :] - delta_arc[0, :]) / Robotarium.BASE_LENGTH
+    delta_theta = (delta_arc[1, :] - delta_arc[0, :]) / BASE_LENGTH
 
     dxs = delta_s * np.cos(delta_theta / 2.0)
     dys = delta_s * np.sin(delta_theta / 2.0)
