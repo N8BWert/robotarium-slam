@@ -26,7 +26,7 @@ from utils import generate_initial_conditions
 # The ids of the seeking robots
 SEEKING_IDS = [0]
 # The ids of the landmarking robots
-LANDMARKING_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+LANDMARKING_IDS = [1, 2, 3, 4, 5, 6]
 # The number of robots in the experiment
 N = len(SEEKING_IDS) + len(LANDMARKING_IDS)
 # The number of iterations in the experiment

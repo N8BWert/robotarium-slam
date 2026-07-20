@@ -20,5 +20,6 @@ robotarium-python-simulator = { git = "https://github.com/robotarium/robotarium_
 
 [dependency-groups]
 dev = [
+    "ipykernel>=7.3.0",
     "pdoc>=16.0.0",
 ]
