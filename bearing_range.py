@@ -16,9 +16,9 @@ ROBOT_ASSOCIATION_TOLERANCE = 0.15
 # The maximum distance between a distance sensor reading and a landmark to be considered valid
 LANDMARK_ASSOCIATION_TOLERANCE = 0.225
 # The standard deviation for the bearing part of the bearing range factor
-BEARING_NOISE_STD = 0.85
+BEARING_NOISE_STD = 0.9
 # The standard deviation for the range part of the bearing range factor
-DISTANCE_NOISE_STD = 0.85
+DISTANCE_NOISE_STD = 0.9
 # The noise model for the bearing range factors.
 BASE_NOISE_MODEL = gtsam.noiseModel.Diagonal.Sigmas(np.array([BEARING_NOISE_STD, DISTANCE_NOISE_STD]))
 # The huber threshold for the huber noise model

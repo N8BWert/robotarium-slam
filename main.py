@@ -25,7 +25,7 @@ from bearing_range import BearingRangeDetector
 from utils import generate_initial_conditions
 
 # The seed for the experiment
-SEED = 13
+SEED = 17
 np.random.seed(SEED)
 
 TIME_STEP = 1.0 / 15.0
@@ -37,7 +37,7 @@ LANDMARKING_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 # The number of robots in the experiment
 N = len(SEEKING_IDS) + len(LANDMARKING_IDS)
 # The number of iterations in the experiment
-ITERATIONS = 2500
+ITERATIONS = 3000
 
 def main():
     r = Robotarium(
@@ -75,6 +75,7 @@ def main():
     gt_trajectories = []
     encoder_readings = []
     heading_readings = []
+    distance_readings = []
     encoder_readings.append(initial_encoders.copy())
     gt_trajectories.append(initial_poses.copy())
     heading_readings.append(initial_headings.copy())
@@ -190,6 +191,7 @@ def main():
 
         # Add distance detection factors to the graph
         distances = r.get_distances()[:, SEEKING_IDS]
+        distance_readings.append(distances.copy())
         world_coordinates = detector.convert_distance_readings_to_world_coordinates(
             poses_np,
             distances
@@ -273,6 +275,7 @@ def main():
     np.save("deadreckoning_trajectories.npy", np.array(deadreckoning_trajectory))
     np.save("heading_readings.npy", np.array(heading_readings))
     np.save("encoder_readings.npy", np.array(encoder_readings))
+    np.save("distance_readings.npy", np.array(distance_readings))
     r.debug()
     
 

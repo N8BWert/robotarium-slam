@@ -372,7 +372,7 @@ class SLAMDemoController:
         # The barrier certificate to use for preventing crashes
         self.barrier_certificate = SLAMDemoBarrierCertificate(
             barrier_gain=1.0,
-            safety_radius=0.15,
+            safety_radius=0.20,
             projection_distance=0.05,
             velocity_magnitude_limit=velocity_magnitude_limit
         )

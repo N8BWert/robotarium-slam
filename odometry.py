@@ -18,7 +18,7 @@ MOTOR_GEAR_RATIO: float = 100.0
 BASE_LENGTH: float = 0.1045
 
 # The noise model for encoder odometry factors.
-ENCODER_NOISE_MODEL = gtsam.noiseModel.Diagonal.Sigmas(np.array([0.05, 0.05, 0.05]))
+ENCODER_NOISE_MODEL = gtsam.noiseModel.Diagonal.Sigmas(np.array([0.01, 0.01, 0.01]))
 
 
 def ticks_to_distance(ticks: np.ndarray) -> np.ndarray:
